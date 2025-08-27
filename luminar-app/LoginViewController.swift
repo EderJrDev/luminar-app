@@ -43,12 +43,11 @@ class LoginViewController: UIViewController {
     }()
     
     // StackView para organizar os elementos verticalmente.
-    // Usar uma StackView simplifica o layout e evita conflitos de constraints.
     private let contentStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.alignment = .center
-        stackView.spacing = 0 // Espaçamento padrão entre os elementos.
+        stackView.spacing = 0
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -59,48 +58,52 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupLayout()
+        setupTapGesture() // Adiciona a configuração do gesto de toque.
     }
 
     // MARK: - Setup Methods
 
     private func setupUI() {
-        // Define a cor de fundo da tela.
         view.backgroundColor = UIColor(named: "background")
-        
-        // Adiciona a StackView principal à view.
         view.addSubview(contentStackView)
-        
-        // Adiciona os elementos à StackView, que cuidará do arranjo.
         contentStackView.addArrangedSubview(fireflyImageView)
         contentStackView.addArrangedSubview(logoImageView)
         contentStackView.addArrangedSubview(sloganLabel)
     }
     
     private func setupLayout() {
-        
         NSLayoutConstraint.activate([
-            // Centraliza a StackView na tela
             contentStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contentStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             contentStackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
 
-            // Vagalume ocupa a largura total da StackView
-                 fireflyImageView.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
-                 
-                 // ADICIONE ESTA LINHA: Define a altura do vagalume como 25% da altura da tela
-                 fireflyImageView.heightAnchor.constraint(equalTo:
-                                                            contentStackView.widthAnchor),
+            fireflyImageView.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
+            fireflyImageView.heightAnchor.constraint(equalTo: contentStackView.widthAnchor),
 
+            logoImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.35),
+            logoImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2),
 
-            // Logo ocupa 35% da largura da tela
-                   logoImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.35),
-                   
-                   // ADICIONE ESTA LINHA: Define a altura do logo como 20% da altura da tela
-                   logoImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2),
-
-                   // Slogan ocupa largura total da stack
-                   sloganLabel.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
-               ])
+            sloganLabel.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
+        ])
     }
-
+    
+    // MARK: - Actions & Navigation
+    
+    /// Configura o reconhecimento de gesto de toque na tela.
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapScreen))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    /// É chamado quando o usuário toca na tela.
+    @objc private func didTapScreen() {
+        // Cria a instância da nova tela.
+        let authVC = AuthViewController()
+        
+        // Define o estilo de apresentação (tela cheia).
+        authVC.modalPresentationStyle = .fullScreen
+        
+        // Apresenta a nova tela.
+        present(authVC, animated: true, completion: nil)
+    }
 }
