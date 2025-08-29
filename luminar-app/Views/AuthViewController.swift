@@ -9,23 +9,18 @@ import UIKit
 
 // ViewController para a tela de autenticação (Entrar/Cadastrar).
 class AuthViewController: UIViewController {
-
-    // MARK: - State
     
-    // Enum para controlar o modo da tela (Entrar ou Cadastrar).
-    private enum AuthMode {
-        case signIn
-        case signUp
-    }
-    
-    // Mantém o estado atual da tela. Começa em 'signIn'.
-    private var currentMode: AuthMode = .signIn {
-        didSet {
-            updateUIForCurrentMode()
-        }
-    }
+    private let viewModel = AuthViewModel()
 
     // MARK: - UI Components
+    
+    private let activityIndicator: UIActivityIndicatorView = {
+          let indicator = UIActivityIndicatorView(style: .medium)
+          indicator.color = .white
+          indicator.hidesWhenStopped = true
+          indicator.translatesAutoresizingMaskIntoConstraints = false
+          return indicator
+      }()
 
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -37,7 +32,7 @@ class AuthViewController: UIViewController {
 
     private let fireflyImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "firefly")
+        imageView.image = UIImage(named: "firefly-book")
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -77,15 +72,23 @@ class AuthViewController: UIViewController {
 
     // Campo de texto para o nome.
     private let nameTextField: UITextField = {
-        let textField = createStyledTextField(placeholder: "NOME")
+        let textField = createStyledTextField(placeholder: "Nome")
         textField.autocapitalizationType = .words
+        textField.isHidden = true
         return textField
     }()
     
     // Campo de texto para o email (inicialmente oculto).
     private let emailTextField: UITextField = {
-        let textField = createStyledTextField(placeholder: "EMAIL")
+        let textField = createStyledTextField(placeholder: "Email")
         textField.keyboardType = .emailAddress
+        textField.autocapitalizationType = .none
+        return textField
+    }()
+    
+    private let ageTextField: UITextField = {
+        let textField = createStyledTextField(placeholder: "Idade")
+        textField.keyboardType = .numberPad
         textField.autocapitalizationType = .none
         textField.isHidden = true // Começa oculto
         return textField
@@ -93,14 +96,14 @@ class AuthViewController: UIViewController {
 
     // Campo de texto para a senha.
     private let passwordTextField: UITextField = {
-        let textField = createStyledTextField(placeholder: "SENHA")
+        let textField = createStyledTextField(placeholder: "Senha")
         textField.isSecureTextEntry = true
         return textField
     }()
     
     // StackView para organizar os campos de texto.
     private lazy var fieldsStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [nameTextField, emailTextField, passwordTextField])
+        let stackView = UIStackView(arrangedSubviews: [nameTextField, emailTextField, ageTextField, passwordTextField])
         stackView.axis = .vertical
         stackView.spacing = 20
         stackView.distribution = .fillEqually
@@ -116,7 +119,7 @@ class AuthViewController: UIViewController {
         button.backgroundColor = UIColor.appBlue
         button.layer.cornerRadius = 25
         button.translatesAutoresizingMaskIntoConstraints = false
-        // Adicionar ação aqui se necessário, ex: button.addTarget(...)
+        button.addTarget(self, action: #selector(didTapActionButton), for: .touchUpInside) // chama a funcao de cadastro
         return button
     }()
     
@@ -140,11 +143,18 @@ class AuthViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupLayout()
-        updateUIForCurrentMode() // Configura a UI inicial para o modo .signIn
+        setupBindings()
+        updateUI()
         
         // Adiciona um gesto para dispensar o teclado ao tocar fora dos campos
         let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         view.addGestureRecognizer(tapGesture)
+        
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        ageTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        emailTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+
     }
 
     // MARK: - Setup Methods
@@ -159,6 +169,71 @@ class AuthViewController: UIViewController {
         formContainerView.addSubview(actionButton)
         formContainerView.addSubview(socialButtonsStackView)
     }
+    
+    /// Conecta a ViewController ao ViewModel.
+     private func setupBindings() {
+         // A ViewController "assina" as mudanças do ViewModel.
+         // Toda vez que `onStateChange` for chamado no ViewModel, o código neste closure será executado.
+         viewModel.onStateChange = { [weak self] in
+             // Usamos [weak self] para evitar ciclos de retenção de memória.
+             self?.updateUI()
+         }
+         
+         viewModel.onRegistrationSuccess = { [weak self] response in
+                    print("Sucesso! Mensagem: \(response.message)")
+                    self?.showAlert(title: "Sucesso!", message: response.message) {
+                        // Após o usuário clicar em OK, navegue para a Home.
+                        let homeVC = HomeViewController()
+                           let nav = UINavigationController(rootViewController: homeVC)
+
+                           if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                              let window = windowScene.windows.first {
+                               UIView.transition(with: window,
+                                                 duration: 0.4,
+                                                 options: .transitionCrossDissolve,
+                                                 animations: {
+                                   window.rootViewController = nav
+                               })
+                           }
+                    }
+                }
+                
+                viewModel.onRegistrationFailure = { [weak self] errorMessage in
+                    print("Erro: \(errorMessage)")
+                    self?.showAlert(title: "Erro", message: errorMessage)
+                }
+                
+              
+         viewModel.onLoginSuccess = { [weak self] response in
+                    print("Sucesso! Mensagem: \(response.message)")
+                    self?.showAlert(title: "Sucesso!", message: response.message) {
+                        // Após o usuário clicar em OK, navegue para a Home.
+                        let homeVC = HomeViewController()
+                           let nav = UINavigationController(rootViewController: homeVC)
+
+                           if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                              let window = windowScene.windows.first {
+                               UIView.transition(with: window,
+                                                 duration: 0.4,
+                                                 options: .transitionCrossDissolve,
+                                                 animations: {
+                                   window.rootViewController = nav
+                               })
+                           }
+                    }
+                }
+         
+         viewModel.onLoginFailure = { [weak self] errorMessage in
+             print("Erro: \(errorMessage)")
+             self?.showAlert(title: "Erro", message: errorMessage)
+         }
+         
+         // NOVO: Binding para o estado de carregamento.
+         viewModel.onLoadingStateChange = { [weak self] isLoading in
+             self?.handleLoadingState(isLoading)
+         }
+         
+     }
 
     private func setupLayout() {
         NSLayoutConstraint.activate([
@@ -169,7 +244,7 @@ class AuthViewController: UIViewController {
 
             fireflyImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             fireflyImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            fireflyImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.4),
+            fireflyImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6),
             fireflyImageView.heightAnchor.constraint(equalTo: fireflyImageView.widthAnchor),
 
             formContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -183,15 +258,13 @@ class AuthViewController: UIViewController {
             authSwitchStackView.heightAnchor.constraint(equalToConstant: 50),
             
             signInButton.widthAnchor.constraint(equalToConstant: 160),
-            
             signUpButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 160),
 
-            
             fieldsStackView.topAnchor.constraint(equalTo: authSwitchStackView.bottomAnchor, constant: 30),
             fieldsStackView.leadingAnchor.constraint(equalTo: formContainerView.leadingAnchor, constant: 40),
             fieldsStackView.trailingAnchor.constraint(equalTo: formContainerView.trailingAnchor, constant: -40),
             
-            nameTextField.heightAnchor.constraint(equalToConstant: 56),
+            emailTextField.heightAnchor.constraint(equalToConstant: 56),
             
             actionButton.topAnchor.constraint(equalTo: fieldsStackView.bottomAnchor, constant: 30),
             actionButton.centerXAnchor.constraint(equalTo: formContainerView.centerXAnchor),
@@ -206,56 +279,90 @@ class AuthViewController: UIViewController {
     }
     
     // MARK: - UI Update Logic
+      
+      /// Atualiza a interface com base nos dados do ViewModel.
+      /// Este método não tem mais lógica "if/else", apenas atribui valores.
+      private func updateUI() {
+          UIView.animate(withDuration: 0.3) {
+              // Pega os valores diretamente do ViewModel
+              self.actionButton.setTitle(self.viewModel.actionButtonTitle, for: .normal)
+              self.nameTextField.isHidden = self.viewModel.isNameFieldHidden
+              self.ageTextField.isHidden = self.viewModel.isAgeFieldHidden
+              
+              // Atualiza a aparência dos botões de troca
+              if self.viewModel.isSignInModeActive {
+                  self.signInButton.backgroundColor = UIColor.appBlue // Supondo que UIColor.appBlue exista
+                  self.signInButton.setTitleColor(.white, for: .normal)
+                  self.signUpButton.backgroundColor = .clear
+                  self.signUpButton.setTitleColor(UIColor.appBlue, for: .normal)
+              } else {
+                  self.signUpButton.backgroundColor = UIColor.appBlue
+                  self.signUpButton.setTitleColor(.white, for: .normal)
+                  self.signInButton.backgroundColor = .clear
+                  self.signInButton.setTitleColor(UIColor.appBlue, for: .normal)
+              }
+              
+              self.view.layoutIfNeeded()
+          }
+      }
     
-    /// Atualiza a interface com base no modo atual (signIn ou signUp).
-    private func updateUIForCurrentMode() {
-        // Anima a transição para suavidade
-        UIView.animate(withDuration: 0.3) {
-            switch self.currentMode {
-            case .signIn:
-                // Atualiza aparência dos botões de troca
-                self.signInButton.backgroundColor = UIColor.appBlue
-                self.signInButton.setTitleColor(.white, for: .normal)
-                
-                self.signUpButton.backgroundColor = .clear
-                self.signUpButton.setTitleColor(UIColor.appBlue, for: .normal)
-                
-                // Oculta o campo de email
-                self.emailTextField.isHidden = true
-                
-                // Atualiza o botão de ação principal
-                self.actionButton.setTitle("Entrar", for: .normal)
-                
-            case .signUp:
-                // Atualiza aparência dos botões de troca
-                self.signUpButton.backgroundColor = UIColor.appBlue
-                self.signUpButton.setTitleColor(.white, for: .normal)
-                
-                self.signInButton.backgroundColor = .clear
-                self.signInButton.setTitleColor(UIColor.appBlue, for: .normal)
-                
-                // Mostra o campo de email
-                self.emailTextField.isHidden = false
-                
-                // Atualiza o botão de ação principal
-                self.actionButton.setTitle("Cadastrar", for: .normal)
-            }
-            // Força o layout a se atualizar dentro da animação
-            self.view.layoutIfNeeded()
+    // NOVO: Função para gerenciar o estado de carregamento da UI.
+    private func handleLoadingState(_ isLoading: Bool) {
+        if isLoading {
+            activityIndicator.startAnimating()
+            actionButton.isEnabled = false
+            // Esconde o título do botão para mostrar apenas o indicador.
+            actionButton.setTitle("", for: .disabled)
+        } else {
+            activityIndicator.stopAnimating()
+            actionButton.isEnabled = true
+            // Restaura o título do botão.
+            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
         }
     }
     
+    
     // MARK: - Actions
     
+    // As ações agora apenas notificam o ViewModel. Elas não mudam o estado diretamente.
     @objc private func didTapSignIn() {
-        currentMode = .signIn
+        viewModel.didTapSignIn()
     }
     
     @objc private func didTapSignUp() {
-        currentMode = .signUp
+        viewModel.didTapSignUp()
+    }
+    
+    @objc private func didTapActionButton() {
+          // LOG DE DEBUG: Confirma que o toque no botão está sendo registrado.
+          print("AuthViewController: didTapActionButton() foi chamado.")
+          viewModel.performMainAction()
+      }
+    
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        switch textField {
+        case nameTextField:
+            viewModel.fullName = textField.text ?? ""
+        case ageTextField:
+            viewModel.age = textField.text ?? ""
+        case emailTextField:
+            viewModel.email = textField.text ?? ""
+        case passwordTextField:
+            viewModel.password = textField.text ?? ""
+        default:
+            break
+        }
     }
     
     // MARK: - Helper Methods
+    
+    private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+           let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+           alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+               completion?()
+           }))
+           present(alertController, animated: true)
+       }
     
     /// Cria e configura um botão de troca de modo (Entre/Cadastre).
     private func createAuthSwitchButton(title: String) -> UIButton {
@@ -314,14 +421,4 @@ class PaddedTextField: UITextField {
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: padding)
     }
-}
-
-
-// MARK: - UIColor Extension
-
-// É uma boa prática organizar as cores do app em uma extensão.
-extension UIColor {
-    static let appBlue = UIColor(red: 0.13, green: 0.16, blue: 0.78, alpha: 1.00)
-    static let appYellowBackground = UIColor(red: 1.00, green: 0.98, blue: 0.90, alpha: 1.00)
-    static let appYellowText = UIColor(red: 0.82, green: 0.78, blue: 0.55, alpha: 1.00)
 }

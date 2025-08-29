@@ -20,8 +20,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 2. Cria uma nova janela (UIWindow) com o tamanho da tela.
         let window = UIWindow(windowScene: windowScene)
 
-        // 3. Define o nosso LoginViewController como o controlador de tela principal (root).
-        window.rootViewController = LoginViewController()
+        let loginVC = LoginViewController()
+        let nav = UINavigationController(rootViewController: loginVC)
+        window.rootViewController = nav
+
 
         // 4. Atribui a janela criada à propriedade window do SceneDelegate.
         self.window = window

@@ -22,20 +22,20 @@ class LoginViewController: UIViewController {
     }()
 
     // Imagem do logo "Luminar".
-    private let logoImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "luminar-logo")
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
+//    private let logoImageView: UIImageView = {
+//        let imageView = UIImageView()
+//        imageView.image = UIImage(named: "luminar-logo")
+//        imageView.contentMode = .scaleAspectFit
+//        imageView.translatesAutoresizingMaskIntoConstraints = false
+//        return imageView
+//    }()
 
     // Texto do slogan.
     private let sloganLabel: UILabel = {
         let label = UILabel()
         label.text = "Venha com o Lume descobrir o seu brilho"
         label.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
-        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.font = .systemFont(ofSize: 20, weight: .regular)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,7 @@ class LoginViewController: UIViewController {
         view.backgroundColor = UIColor(named: "background")
         view.addSubview(contentStackView)
         contentStackView.addArrangedSubview(fireflyImageView)
-        contentStackView.addArrangedSubview(logoImageView)
+//        contentStackView.addArrangedSubview(logoImageView)
         contentStackView.addArrangedSubview(sloganLabel)
     }
     
@@ -75,13 +75,13 @@ class LoginViewController: UIViewController {
         NSLayoutConstraint.activate([
             contentStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             contentStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            contentStackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            contentStackView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1.2),
 
             fireflyImageView.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
             fireflyImageView.heightAnchor.constraint(equalTo: contentStackView.widthAnchor),
 
-            logoImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.35),
-            logoImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2),
+//            logoImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.65),
+//            logoImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2),
 
             sloganLabel.widthAnchor.constraint(equalTo: contentStackView.widthAnchor),
         ])
