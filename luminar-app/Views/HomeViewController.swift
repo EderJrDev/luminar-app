@@ -134,8 +134,8 @@ class HomeViewController: UIViewController {
                 // Cabeçalho
                 fireflyImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
                 fireflyImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                fireflyImageView.widthAnchor.constraint(equalToConstant: 80),
-                fireflyImageView.heightAnchor.constraint(equalToConstant: 80),
+                fireflyImageView.widthAnchor.constraint(equalToConstant: 120),
+                fireflyImageView.heightAnchor.constraint(equalToConstant: 120),
                 
                 // Balão de texto
                 speechBubbleView.centerYAnchor.constraint(equalTo: fireflyImageView.centerYAnchor),
