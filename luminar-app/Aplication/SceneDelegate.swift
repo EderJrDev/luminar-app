@@ -20,7 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 2. Cria uma nova janela (UIWindow) com o tamanho da tela.
         let window = UIWindow(windowScene: windowScene)
 
-        let loginVC = LoginViewController()
+//        let loginVC = LoginViewController()
+        let loginVC = HomeViewController()
         let nav = UINavigationController(rootViewController: loginVC)
         window.rootViewController = nav
 
