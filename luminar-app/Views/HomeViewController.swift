@@ -115,6 +115,8 @@ class HomeViewController: UIViewController {
 
         view.addSubview(cardsStackView)
         view.addSubview(continueButton)
+        
+        continueButton.addTarget(self, action: #selector(didTapContinueButton), for: .touchUpInside)
     }
     
     override func viewDidLoad() {
@@ -161,5 +163,26 @@ class HomeViewController: UIViewController {
                 continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
                 continueButton.heightAnchor.constraint(equalToConstant: 50)
             ])
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func didTapContinueButton() {
+        print("Botão Continuar foi tocado!")
+        let questionsVC = QuestionsViewController()
+        
+        // A forma mais comum de navegar é "empurrar" a nova tela na pilha de navegação.
+        // Isso só funciona se a HomeViewController estiver dentro de um UINavigationController.
+        let nav = UINavigationController(rootViewController: questionsVC)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            UIView.transition(with: window,
+                              duration: 0.4,
+                              options: .transitionCrossDissolve,
+                              animations: {
+                window.rootViewController = nav
+            })
+        }
     }
 }

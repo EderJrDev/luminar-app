@@ -174,6 +174,7 @@ class AuthViewModel {
             case .success(let response):
                 // LOG: Sucesso na chamada da API.
                 print("AuthViewModel: Login bem-sucedido - \(response)")
+                TokenManager.shared.save(token: response.token)
                 self?.onLoginSuccess?(response)
             case .failure(let error):
                 // LOG: Falha na chamada da API.
