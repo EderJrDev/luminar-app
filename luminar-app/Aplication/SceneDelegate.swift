@@ -11,7 +11,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     // Dentro de SceneDelegate.swift
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // 1. Garante que estamos lidando com uma cena de janela (UIWindowScene).
@@ -20,8 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // 2. Cria uma nova janela (UIWindow) com o tamanho da tela.
         let window = UIWindow(windowScene: windowScene)
 
-//        let loginVC = LoginViewController()
-        let loginVC = HomeViewController()
+        let loginVC = LoginViewController()
+//        let loginVC = QuestionsViewController()
         let nav = UINavigationController(rootViewController: loginVC)
         window.rootViewController = nav
 
@@ -60,7 +59,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
 }
 

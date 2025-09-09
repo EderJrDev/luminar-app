@@ -14,6 +14,7 @@ enum NetworkError: Error {
     case invalidResponse(statusCode: Int)
     case encodingError(Error)
     case decodingError(Error)
+    case tokenNotFound
 }
 
 // MARK: - Data Models
@@ -45,7 +46,7 @@ class AuthService {
     
     // URL base da sua API.
     private let baseURL = "http://localhost:3001/users"
-
+    
     // JSON Encoder e Decoder configurados para snake_case
     private var jsonEncoder: JSONEncoder {
         let encoder = JSONEncoder()
@@ -58,7 +59,7 @@ class AuthService {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }
-
+    
     /// Tenta registrar um novo usuário no backend.
     /// - Parameters:
     ///   - userData: O objeto `UserRegistrationRequest` com os dados do usuário.
