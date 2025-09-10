@@ -71,7 +71,7 @@ final class QuestionsViewController: UIViewController {
         button.backgroundColor = UIColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0)
         button.layer.cornerRadius = 25
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.isHidden = true // Começa escondido
+        button.isHidden = true
         return button
     }()
     
@@ -107,9 +107,6 @@ final class QuestionsViewController: UIViewController {
         view.addSubview(answersStackView)
         view.addSubview(submitButton)
         
-        // PONTO CRÍTICO DA CORREÇÃO:
-        // O activityIndicator é adicionado como filho do submitButton.
-        // Isso estabelece a hierarquia necessária para as constraints funcionarem.
         submitButton.addSubview(activityIndicator)
         
         // Cria os 5 botões de resposta
@@ -150,9 +147,9 @@ final class QuestionsViewController: UIViewController {
             }
         }
         
-        viewModel.onTestSubmissionSuccess = { [weak self] in
+        viewModel.onTestSubmissionSuccess = { [weak self] response in
             print("Sucesso! Navegando para a tela de resultados.")
-            let resultsVC = ResultsViewController()
+            let resultsVC = ResultsViewController(response:response)
             self?.navigationController?.pushViewController(resultsVC, animated: true)
         }
     }
@@ -196,7 +193,6 @@ final class QuestionsViewController: UIViewController {
             answersStackView.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: -40),
             
             // Activity Indicator (centralizado no botão)
-            // Agora isso funciona porque a hierarquia foi estabelecida em setupUI()
             activityIndicator.centerXAnchor.constraint(equalTo: submitButton.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: submitButton.centerYAnchor)
         ])

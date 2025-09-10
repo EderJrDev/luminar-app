@@ -40,7 +40,6 @@ class AuthViewModel {
     var onLoginSuccess: ((UserLoginResponse) -> Void)?
     var onRegistrationFailure: ((String) -> Void)?
     var onLoginFailure: ((String) -> Void)?
-    // NOVO: Binding para o estado de carregamento.
     var onLoadingStateChange: ((Bool) -> Void)?
     
     // MARK: - Input Data
@@ -150,34 +149,34 @@ class AuthViewModel {
         }
         
         guard !email.isEmpty, !password.isEmpty else {
-            // LOG: Erro de validação.
+            // Erro de validação.
             print("AuthViewModel: Erro de validação - Email ou senha faltando.")
             onRegistrationFailure?("Email e senha são obrigatórios.")
             return
         }
         
-        // NOVO: Inicia o estado de carregamento.
+        // Inicia o estado de carregamento.
         isLoading = true
         
         let loginData = UserLoginRequest(
             email: email, password: password
         )
         
-        // LOG: Dados que serão enviados para a API.
+        // Dados que serão enviados para a API.
         print("AuthViewModel: Enviando dados para o serviço: \(loginData)")
         
         authService.loginUser(loginData: loginData) { [weak self] result in
-            // NOVO: Finaliza o estado de carregamento, não importa o resultado.
+            // Finaliza o estado de carregamento, não importa o resultado.
             self?.isLoading = false
             
             switch result {
             case .success(let response):
-                // LOG: Sucesso na chamada da API.
+                // Sucesso na chamada da API.
                 print("AuthViewModel: Login bem-sucedido - \(response)")
                 TokenManager.shared.save(token: response.token)
                 self?.onLoginSuccess?(response)
             case .failure(let error):
-                // LOG: Falha na chamada da API.
+                // Falha na chamada da API.
                 print("AuthViewModel: Falha no login - \(error)")
                 var errorMessage = "Ocorreu um erro. Tente novamente."
                 if case .invalidResponse = error {

@@ -10,7 +10,6 @@ struct SubmitTestRequest: Codable {
     let respostas: [Int]
 }
 
-// O que esperamos receber de volta do backend após o sucesso.
 struct Intelligences: Codable {
     let linguistic: Int
     let logicalMathematical: Int
@@ -22,6 +21,18 @@ struct Intelligences: Codable {
     let intrapersonal: Int
 }
 
+struct Descriptions: Codable {
+    let linguistic: String
+    let logicalMathematical: String
+    let spatial: String
+    let musical: String
+    let bodilyKinesthetic: String
+    let naturalistic: String
+    let interpersonal: String
+    let intrapersonal: String
+}
+
 struct SubmitTestResponse: Codable {
     let intelligences: Intelligences
+    let descriptions: Descriptions
 }

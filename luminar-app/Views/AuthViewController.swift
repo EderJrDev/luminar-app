@@ -122,20 +122,6 @@ class AuthViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapActionButton), for: .touchUpInside) // chama a funcao de cadastro
         return button
     }()
-    
-    // StackView para os botões de login social.
-    private lazy var socialButtonsStackView: UIStackView = {
-        let appleButton = createSocialLoginButton(imageName: "apple-logo")
-        let googleButton = createSocialLoginButton(imageName: "google-logo")
-        let facebookButton = createSocialLoginButton(imageName: "facebook-logo")
-        
-        let stackView = UIStackView(arrangedSubviews: [appleButton, googleButton, facebookButton])
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 20
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
 
     // MARK: - Lifecycle
 
@@ -167,7 +153,6 @@ class AuthViewController: UIViewController {
         formContainerView.addSubview(authSwitchStackView)
         formContainerView.addSubview(fieldsStackView)
         formContainerView.addSubview(actionButton)
-        formContainerView.addSubview(socialButtonsStackView)
     }
     
     /// Conecta a ViewController ao ViewModel.
@@ -182,7 +167,6 @@ class AuthViewController: UIViewController {
          viewModel.onRegistrationSuccess = { [weak self] response in
                     print("Sucesso! Mensagem: \(response.message)")
                     self?.showAlert(title: "Sucesso!", message: response.message) {
-                        // Após o usuário clicar em OK, navegue para a Home.
                         let homeVC = HomeViewController()
                            let nav = UINavigationController(rootViewController: homeVC)
 
@@ -206,8 +190,7 @@ class AuthViewController: UIViewController {
               
          viewModel.onLoginSuccess = { [weak self] response in
                     print("Sucesso! Mensagem: \(response.message)")
-                    self?.showAlert(title: "Sucesso!", message: response.message) {
-                        // Após o usuário clicar em OK, navegue para a Home.
+//                    self?.showAlert(title: "Sucesso!", message: response.message) {
                         let homeVC = HomeViewController()
                            let nav = UINavigationController(rootViewController: homeVC)
 
@@ -220,7 +203,7 @@ class AuthViewController: UIViewController {
                                    window.rootViewController = nav
                                })
                            }
-                    }
+//                    }
                 }
          
          viewModel.onLoginFailure = { [weak self] errorMessage in
@@ -228,7 +211,6 @@ class AuthViewController: UIViewController {
              self?.showAlert(title: "Erro", message: errorMessage)
          }
          
-         // NOVO: Binding para o estado de carregamento.
          viewModel.onLoadingStateChange = { [weak self] isLoading in
              self?.handleLoadingState(isLoading)
          }
@@ -270,18 +252,11 @@ class AuthViewController: UIViewController {
             actionButton.centerXAnchor.constraint(equalTo: formContainerView.centerXAnchor),
             actionButton.widthAnchor.constraint(equalTo: fieldsStackView.widthAnchor, multiplier: 0.8),
             actionButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            socialButtonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            socialButtonsStackView.centerXAnchor.constraint(equalTo: formContainerView.centerXAnchor),
-            socialButtonsStackView.widthAnchor.constraint(equalTo: formContainerView.widthAnchor, multiplier: 0.6),
-            socialButtonsStackView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
     // MARK: - UI Update Logic
       
-      /// Atualiza a interface com base nos dados do ViewModel.
-      /// Este método não tem mais lógica "if/else", apenas atribui valores.
       private func updateUI() {
           UIView.animate(withDuration: 0.3) {
               // Pega os valores diretamente do ViewModel
@@ -291,7 +266,7 @@ class AuthViewController: UIViewController {
               
               // Atualiza a aparência dos botões de troca
               if self.viewModel.isSignInModeActive {
-                  self.signInButton.backgroundColor = UIColor.appBlue // Supondo que UIColor.appBlue exista
+                  self.signInButton.backgroundColor = UIColor.appBlue
                   self.signInButton.setTitleColor(.white, for: .normal)
                   self.signUpButton.backgroundColor = .clear
                   self.signUpButton.setTitleColor(UIColor.appBlue, for: .normal)
@@ -306,13 +281,13 @@ class AuthViewController: UIViewController {
           }
       }
     
-    // NOVO: Função para gerenciar o estado de carregamento da UI.
+    // Função para gerenciar o estado de carregamento da UI.
     private func handleLoadingState(_ isLoading: Bool) {
         if isLoading {
             activityIndicator.startAnimating()
             actionButton.isEnabled = false
             // Esconde o título do botão para mostrar apenas o indicador.
-            actionButton.setTitle("", for: .disabled)
+            actionButton.setTitle("...", for: .disabled)
         } else {
             activityIndicator.stopAnimating()
             actionButton.isEnabled = true
@@ -334,7 +309,7 @@ class AuthViewController: UIViewController {
     }
     
     @objc private func didTapActionButton() {
-          // LOG DE DEBUG: Confirma que o toque no botão está sendo registrado.
+          // Confirma que o toque no botão está sendo registrado.
           print("AuthViewController: didTapActionButton() foi chamado.")
           viewModel.performMainAction()
       }
@@ -376,7 +351,7 @@ class AuthViewController: UIViewController {
     
     /// Cria e configura um campo de texto padronizado.
     private static func createStyledTextField(placeholder: String) -> UITextField {
-        let textField = PaddedTextField() // Usando a subclasse com padding
+        let textField = PaddedTextField()
         textField.placeholder = placeholder
         textField.backgroundColor = UIColor.appYellowBackground
         textField.layer.cornerRadius = 28

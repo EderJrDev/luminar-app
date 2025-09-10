@@ -15,7 +15,7 @@ class QuestionsViewModel {
     var onQuestionChange: ((String) -> Void)?
     var onQuizFinished: (() -> Void)?
     var onSubmitResult: ((Result<SubmitTestResponse, NetworkError>) -> Void)?
-    var onTestSubmissionSuccess: (() -> Void)?
+    var onTestSubmissionSuccess: ((SubmitTestResponse) -> Void)?
     
     private let questions: [String] = [
         "É fácil para mim identificar como me sinto e por quê",
@@ -82,7 +82,6 @@ class QuestionsViewModel {
     }
     
     func answerCurrentQuestion(with answerValue: Int) {
-           // Validação simples
            guard answerValue >= 1 && answerValue <= 5 else { return }
            
            collectedAnswers.append(answerValue)
@@ -99,7 +98,6 @@ class QuestionsViewModel {
     }
     
     func submitTest() {
-           // Cria o payload com dados de exemplo (você deve pegar os dados reais do usuário)
            let payload = SubmitTestRequest(
                respostas: collectedAnswers
            )
@@ -109,8 +107,8 @@ class QuestionsViewModel {
                // Repassa o resultado para a View.
                self?.onSubmitResult?(result)
                
-               if case .success = result {
-                   self?.onTestSubmissionSuccess?()
+               if case .success(let response) = result {
+                   self?.onTestSubmissionSuccess?(response)
                }
            }
     }
